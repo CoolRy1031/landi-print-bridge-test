@@ -264,33 +264,42 @@
   }
 
   function createTestReceipt() {
-    const encoder = new TextEncoder();
+  const encoder = new TextEncoder();
 
-    const text = [
-      "",
-      "LANDI PRINT BRIDGE",
-      "RAW ESC/POS TEST",
-      "------------------------------",
-      "Connection test successful",
-      "Printing raw printer data",
-      "------------------------------",
-      "",
-      "",
-      ""
-    ].join("\n");
+  const text = [
+    "",
+    "LANDI PRINT BRIDGE",
+    "RAW ESC/POS TEST",
+    "------------------------------",
+    "Connection test successful",
+    "Printing raw printer data",
+    "------------------------------",
+    "",
+    "",
+    ""
+  ].join("\n");
 
-    const initialize = new Uint8Array([0x1B, 0x40]);
-    const receiptText = encoder.encode(text);
+  const initialize = new Uint8Array([
+    0x1B, 0x40
+  ]);
 
-    const result = new Uint8Array(
-      initialize.length + receiptText.length
-    );
+  const receiptText = encoder.encode(text);
 
-    result.set(initialize, 0);
-    result.set(receiptText, initialize.length);
+  // ESC/POS full paper cut
+  const cut = new Uint8Array([
+    0x1D, 0x56, 0x00
+  ]);
 
-    return result;
-  }
+  const result = new Uint8Array(
+    initialize.length + receiptText.length + cut.length
+  );
+
+  result.set(initialize, 0);
+  result.set(receiptText, initialize.length);
+  result.set(cut, initialize.length + receiptText.length);
+
+  return result;
+}
 
   async function sendTestPrint() {
 
